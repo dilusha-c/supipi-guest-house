@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #234B3A;
+  --color-sage: #78927D;
+  --color-cream: #F5F1E8;
+  --color-warm-brown: #6B5140;
+  --color-muted-gold: #B8955A;
+  --color-dark: #252525;
+  --color-muted: #6B6B63;
+  --color-light-border: #E6E0D5;
+
+  --font-heading: var(--font-playfair);
+  --font-body: var(--font-inter);
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-dark font-body antialiased selection:bg-forest/20;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-forest;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-forest text-white px-6 py-3 rounded-[12px] font-medium transition-all hover:bg-forest/90 hover:-translate-y-0.5 shadow-sm active:translate-y-0;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center bg-transparent text-forest border-2 border-forest px-6 py-3 rounded-[12px] font-medium transition-all hover:bg-forest hover:text-white hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .card {
+    @apply bg-white rounded-[14px] shadow-sm border border-light-border overflow-hidden;
+  }
+}
+
+/* Ensure Next.js images look good */
+img {
+  @apply max-w-full h-auto;
+}
+@import "react-day-picker/dist/style.css";
