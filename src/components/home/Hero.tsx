@@ -17,8 +17,8 @@ export default function Hero() {
           className="object-cover object-center"
           sizes="100vw"
         />
-        {/* Subtle dark overlay */}
-        <div className="absolute inset-0 bg-black/40 z-10" />
+        {/* Enhanced dark gradient overlay for optimal text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/75 z-10" />
       </div>
 
       {/* Content */}
@@ -29,13 +29,13 @@ export default function Hero() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="max-w-3xl w-full flex flex-col items-center"
         >
-          <span className="font-heading tracking-[0.2em] text-sm md:text-base uppercase mb-4 text-cream/90 block">
+          <span className="font-heading tracking-[0.25em] text-sm md:text-base uppercase mb-4 text-white/95 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] block">
             Supipi Guest House
           </span>
-          <h1 className="text-4xl md:text-[52px] lg:text-[64px] font-heading font-medium leading-[1.1] mb-6 drop-shadow-sm">
+          <h1 className="text-4xl md:text-[52px] lg:text-[64px] font-heading font-semibold leading-[1.15] mb-6 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] [text-shadow:_0_2px_14px_rgba(0,0,0,0.85)]">
             A Peaceful Stay in the Hills of Haputale
           </h1>
-          <p className="text-lg md:text-xl text-cream/90 mb-10 max-w-2xl font-light leading-relaxed">
+          <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
             Enjoy a comfortable and welcoming stay surrounded by the natural beauty of Haputale, Sri Lanka.
           </p>
           
