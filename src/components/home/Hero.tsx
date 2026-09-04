@@ -30,25 +30,25 @@ export default function Hero() {
           className="max-w-3xl w-full flex flex-col items-center"
         >
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 mb-5 shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-heading tracking-[0.25em] text-xs md:text-sm uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-300 font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+            <span className="font-heading tracking-[0.25em] text-xs md:text-sm uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#FEF08A] via-[#A7F3D0] via-[#BAE6FD] to-[#FEF08A] animate-light-gradient font-semibold">
               Supipi Guest House • Haputale
             </span>
           </div>
 
           <h1 className="text-4xl md:text-[54px] lg:text-[66px] font-heading font-bold leading-[1.15] mb-6 drop-shadow-[0_6px_24px_rgba(0,0,0,0.95)]">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-teal-200 to-amber-200">
-              A Peaceful Stay in the{" "}
-            </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-emerald-300">
+            <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#FEF08A] via-[#BAE6FD] via-[#A7F3D0] via-[#FED7AA] to-[#FEF08A] animate-light-gradient">
+              A Peaceful Stay in the
+            </span>{" "}
+            <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#FED7AA] via-[#FEF08A] via-[#A7F3D0] via-[#BAE6FD] to-[#FED7AA] animate-light-gradient">
               Hills of Haputale
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
             Enjoy a comfortable and welcoming stay surrounded by the{" "}
-            <span className="text-emerald-300 font-medium">natural beauty</span> of{" "}
-            <span className="text-amber-300 font-medium">Haputale, Sri Lanka</span>.
+            <span className="text-[#A7F3D0] font-medium">natural beauty</span> of{" "}
+            <span className="text-[#FEF08A] font-medium">Haputale, Sri Lanka</span>.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">

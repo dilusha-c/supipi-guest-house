@@ -43,3 +43,20 @@ img {
   @apply max-w-full h-auto;
 }
 @import "react-day-picker/dist/style.css";
+
+@keyframes dynamicLightGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-light-gradient {
+  background-size: 250% auto;
+  animation: dynamicLightGradient 7s ease-in-out infinite;
+}
