@@ -9,9 +9,7 @@ export const metadata: Metadata = {
 };
 
 import AvailabilityCalendar from "@/components/booking/AvailabilityCalendar";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export default async function BookingPage() {
   const settings = await prisma.settings.findUnique({

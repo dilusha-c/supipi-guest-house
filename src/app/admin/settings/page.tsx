@@ -1,10 +1,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import SettingsForm from "@/components/admin/SettingsForm";
-
-const prisma = new PrismaClient();
 
 export default async function AdminSettingsPage() {
   const session = await getServerSession(authOptions);

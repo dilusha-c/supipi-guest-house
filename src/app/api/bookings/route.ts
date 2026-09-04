@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 
-const prisma = new PrismaClient();
+export const dynamic = 'force-dynamic';
 
 // Zod schema for validating the incoming booking request
 const bookingSchema = z.object({

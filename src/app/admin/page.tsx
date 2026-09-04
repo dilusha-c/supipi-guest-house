@@ -2,11 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { LogOut, Calendar, Settings, FileImage } from "lucide-react";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import BookingTable from "@/components/admin/BookingTable";
 import AddBookingHeader from "@/components/admin/AddBookingHeader";
-
-const prisma = new PrismaClient();
 
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions);

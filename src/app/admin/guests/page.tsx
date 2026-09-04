@@ -1,11 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Users } from "lucide-react";
 import GuestList from "@/components/admin/GuestList";
-
-const prisma = new PrismaClient();
 
 export default async function GuestsPage() {
   const session = await getServerSession(authOptions);

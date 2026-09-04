@@ -3,7 +3,7 @@ import Image from "next/image";
 import SectionHeading from "@/components/ui/SectionHeading";
 import BookingCTA from "@/components/ui/BookingCTA";
 import { Check } from "lucide-react";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Comfortable Rooms | Supipi Guest House",
@@ -17,8 +17,6 @@ const roomFeatures = [
   "Balcony with scenic views",
   "Spacious living area",
 ];
-
-const prisma = new PrismaClient();
 
 export default async function RoomsPage() {
   const settings = await prisma.settings.findUnique({

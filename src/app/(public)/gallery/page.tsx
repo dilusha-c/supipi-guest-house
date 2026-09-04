@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import GalleryView from "@/components/gallery/GalleryView";
-
-const prisma = new PrismaClient();
 
 export const revalidate = 3600; // Cache for 1 hour
 

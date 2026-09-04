@@ -5,6 +5,8 @@ import { sendEmail } from "@/lib/email";
 import { businessConfig } from "@/config/business";
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
