@@ -29,14 +29,26 @@ export default function Hero() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="max-w-3xl w-full flex flex-col items-center"
         >
-          <span className="font-heading tracking-[0.25em] text-sm md:text-base uppercase mb-4 text-white/95 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] block">
-            Supipi Guest House
-          </span>
-          <h1 className="text-4xl md:text-[52px] lg:text-[64px] font-heading font-semibold leading-[1.15] mb-6 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] [text-shadow:_0_2px_14px_rgba(0,0,0,0.85)]">
-            A Peaceful Stay in the Hills of Haputale
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 mb-5 shadow-lg">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-heading tracking-[0.25em] text-xs md:text-sm uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-300 font-semibold">
+              Supipi Guest House • Haputale
+            </span>
+          </div>
+
+          <h1 className="text-4xl md:text-[54px] lg:text-[66px] font-heading font-bold leading-[1.15] mb-6 drop-shadow-[0_6px_20px_rgba(0,0,0,0.9)]">
+            <span className="text-white">
+              A Peaceful Stay in the{" "}
+            </span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-emerald-300">
+              Hills of Haputale
+            </span>
           </h1>
+
           <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-            Enjoy a comfortable and welcoming stay surrounded by the natural beauty of Haputale, Sri Lanka.
+            Enjoy a comfortable and welcoming stay surrounded by the{" "}
+            <span className="text-emerald-300 font-medium">natural beauty</span> of{" "}
+            <span className="text-amber-300 font-medium">Haputale, Sri Lanka</span>.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
