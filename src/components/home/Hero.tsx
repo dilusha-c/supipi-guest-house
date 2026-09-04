@@ -36,11 +36,11 @@ export default function Hero() {
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-[54px] lg:text-[66px] font-heading font-bold leading-[1.15] mb-6 drop-shadow-[0_6px_20px_rgba(0,0,0,0.9)]">
-            <span className="text-white">
+          <h1 className="text-4xl md:text-[54px] lg:text-[66px] font-heading font-bold leading-[1.15] mb-6 drop-shadow-[0_6px_24px_rgba(0,0,0,0.95)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-teal-200 to-amber-200">
               A Peaceful Stay in the{" "}
             </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-emerald-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-emerald-300">
               Hills of Haputale
             </span>
           </h1>
