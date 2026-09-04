@@ -9,7 +9,9 @@ import { motion, AnimatePresence } from "framer-motion";
 type GalleryImage = {
   id: string;
   url: string;
-  caption: string;
+  caption?: string | null;
+  createdAt?: Date;
+  order?: number;
 };
 
 export default function GalleryView({ images }: { images: GalleryImage[] }) {

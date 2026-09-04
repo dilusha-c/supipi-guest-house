@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         bookingReference,
         guestName: validatedData.guestName,
         phone: validatedData.phone,
-        email: validatedData.email || null,
+        email: validatedData.email,
         checkIn: checkInDate,
         checkOut: checkOutDate,
         adults: validatedData.adults,
