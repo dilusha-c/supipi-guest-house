@@ -57,13 +57,20 @@ export async function POST(request: Request) {
       }
     });
    
-    // Send Email Notifications
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+    // Send Email Notifications to Admin & Dilusha
+    const adminEmails = Array.from(
+      new Set(
+        [
+          process.env.ADMIN_EMAIL || 'supipiguesthouse@gmail.com',
+          'dilushachamika@gmail.com',
+        ].filter(Boolean) as string[]
+      )
+    );
 
     try {
-      // 1. Alert Admin
+      // 1. Alert Admin & Dilusha
       await sendEmail({
-        to: adminEmail,
+        to: adminEmails,
         subject: `New Booking Request: ${bookingReference}`,
         html: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f7f6; padding: 20px; border-radius: 8px;">
@@ -87,7 +94,7 @@ export async function POST(request: Request) {
               </div>
 
               <div style="text-align: center; margin-top: 30px;">
-                <a href="${process.env.NEXTAUTH_URL}/admin" style="background-color: #2C5234; color: #ffffff; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; display: inline-block;">Manage Booking</a>
+                <a href="${process.env.NEXTAUTH_URL}/123@supipiadmin-re" style="background-color: #2C5234; color: #ffffff; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; display: inline-block;">Manage Booking</a>
               </div>
             </div>
           </div>

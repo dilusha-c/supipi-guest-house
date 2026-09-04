@@ -8,7 +8,7 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async ({ to, subject, html }: { to: string; subject: string; html: string }) => {
+export const sendEmail = async ({ to, subject, html }: { to: string | string[]; subject: string; html: string }) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
     console.error("Email configuration missing. Please add EMAIL_USER and EMAIL_APP_PASSWORD to .env");
     return;
