@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { businessConfig } from "@/config/business";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MobileContactBar from "@/components/layout/MobileContactBar";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -61,10 +59,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-        <MobileContactBar />
+        {children}
+        <Analytics />
       </body>
     </html>
   );

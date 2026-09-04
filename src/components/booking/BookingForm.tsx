@@ -6,6 +6,7 @@ import { businessConfig } from "@/config/business";
 import { Calendar as CalendarIcon, Users, User, Phone, Mail, FileText, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/Calendar";
+import { eachDayOfInterval, format } from "date-fns";
 
 // --- Validation Schemas ---
 const bookingSchema = z.object({
@@ -15,7 +16,7 @@ const bookingSchema = z.object({
   children: z.number().min(0).default(0),
   guestName: z.string().min(2, "Full name is required"),
   phone: z.string().min(9, "Valid phone number is required"),
-  email: z.string().email("Invalid email").optional().or(z.literal('')),
+  email: z.string().email("Valid email is required"),
   specialRequests: z.string().max(500, "Maximum 500 characters").optional(),
 }).refine((data) => {
   if (data.checkIn && data.checkOut) {
@@ -38,7 +39,13 @@ type BookingResponse = {
 };
 
 // --- Component ---
-export default function BookingForm() {
+export default function BookingForm({ 
+  basePrice = 50, 
+  hidePrice = false 
+}: { 
+  basePrice?: number;
+  hidePrice?: boolean;
+}) {
   const [formData, setFormData] = useState<BookingFormData>({
     checkIn: "",
     checkOut: "",
@@ -54,6 +61,43 @@ export default function BookingForm() {
   const [nights, setNights] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<BookingResponse | null>(null);
+
+  // Availability State
+  const [blockedDates, setBlockedDates] = useState<Date[]>([]);
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to?: Date | undefined } | undefined>({ from: undefined, to: undefined });
+
+  useEffect(() => {
+    async function fetchAvailability() {
+      try {
+        const res = await fetch("/api/bookings/availability");
+        const data = await res.json();
+        
+        if (data.bookings) {
+          const dates: Date[] = [];
+          data.bookings.forEach((b: any) => {
+            const checkIn = new Date(b.checkIn);
+            const checkOut = new Date(b.checkOut);
+            const interval = eachDayOfInterval({ start: checkIn, end: checkOut });
+            dates.push(...interval);
+          });
+          setBlockedDates(dates);
+        }
+      } catch (err) {
+        console.error("Failed to fetch availability", err);
+      }
+    }
+    
+    fetchAvailability();
+  }, []);
+
+  // Update formData when dateRange changes
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      checkIn: dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : '',
+      checkOut: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : ''
+    }));
+  }, [dateRange]);
 
   // Calculate nights when dates change
   useEffect(() => {
@@ -71,12 +115,6 @@ export default function BookingForm() {
       setNights(0);
     }
   }, [formData.checkIn, formData.checkOut]);
-
-  // Today's date for min restrictions (YYYY-MM-DD)
-  const todayStr = new Date().toISOString().split('T')[0];
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -97,10 +135,28 @@ export default function BookingForm() {
     setIsSubmitting(true);
     setErrors({});
     
-    try {
-      // Validate with Zod
-      bookingSchema.parse(formData);
+    // Local Validation
+    const parseResult = bookingSchema.safeParse(formData);
+    if (!parseResult.success) {
+      const fieldErrors: Partial<Record<keyof BookingFormData, string>> = {};
+      parseResult.error.issues.forEach((e: z.ZodIssue) => {
+        if (e.path[0]) {
+          fieldErrors[e.path[0] as keyof BookingFormData] = e.message;
+        }
+      });
+      setErrors(fieldErrors);
+      setIsSubmitting(false);
       
+      // Scroll to first error
+      const firstErrorPath = parseResult.error.issues[0]?.path[0] as string;
+      const firstErrorField = document.getElementsByName(firstErrorPath)[0];
+      if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    
+    try {
       // Submit to API
       const response = await fetch('/api/bookings', {
         method: 'POST',
@@ -120,22 +176,7 @@ export default function BookingForm() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       
     } catch (err: any) {
-      if (err instanceof z.ZodError) {
-        const fieldErrors: Partial<Record<keyof BookingFormData, string>> = {};
-        (err as any).errors.forEach((e: z.ZodIssue) => {
-          if (e.path[0]) {
-            fieldErrors[e.path[0] as keyof BookingFormData] = e.message;
-          }
-        });
-        setErrors(fieldErrors);
-        // Scroll to first error
-        const firstErrorField = document.getElementsByName((err as any).errors[0]?.path[0] as string)[0];
-        if (firstErrorField) {
-          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
-        alert(err.message || "An unexpected error occurred. Please try again.");
-      }
+      alert(err.message || "An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -215,40 +256,34 @@ export default function BookingForm() {
               Your Stay
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label htmlFor="checkIn" className="block text-sm font-medium text-dark mb-2">Check-in Date *</label>
-                <input 
-                  type="date" 
-                  id="checkIn" 
-                  name="checkIn"
-                  min={todayStr}
-                  value={formData.checkIn}
-                  onChange={handleInputChange}
-                  className={cn(
-                    "w-full px-4 py-3 rounded-[12px] border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50 transition-colors",
-                    errors.checkIn ? "border-red-500" : "border-light-border"
-                  )}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-dark mb-3">Select Dates *</label>
+              <div className={cn(
+                "w-full flex justify-center bg-cream/30 p-4 rounded-[12px] border transition-colors",
+                (errors.checkIn || errors.checkOut) ? "border-red-500" : "border-light-border"
+              )}>
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={1}
+                  disabled={[
+                    { before: new Date() },
+                    ...blockedDates
+                  ]}
+                  showOutsideDays={false}
+                  className="bg-transparent border-none shadow-none"
+                  modifiers={{
+                    blocked: blockedDates
+                  }}
+                  modifiersClassNames={{
+                    blocked: "bg-gray-200 text-gray-400 line-through opacity-50 pointer-events-none"
+                  }}
                 />
-                {errors.checkIn && <p className="text-red-500 text-xs mt-2">{errors.checkIn}</p>}
               </div>
-              
-              <div>
-                <label htmlFor="checkOut" className="block text-sm font-medium text-dark mb-2">Check-out Date *</label>
-                <input 
-                  type="date" 
-                  id="checkOut" 
-                  name="checkOut"
-                  min={formData.checkIn ? formData.checkIn : tomorrowStr}
-                  value={formData.checkOut}
-                  onChange={handleInputChange}
-                  className={cn(
-                    "w-full px-4 py-3 rounded-[12px] border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50 transition-colors",
-                    errors.checkOut ? "border-red-500" : "border-light-border"
-                  )}
-                />
-                {errors.checkOut && <p className="text-red-500 text-xs mt-2">{errors.checkOut}</p>}
-              </div>
+              {(errors.checkIn || errors.checkOut) && (
+                <p className="text-red-500 text-xs mt-2 text-center">Please select a valid Check-in and Check-out date.</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -290,7 +325,9 @@ export default function BookingForm() {
               </div>
               <div>
                 <h4 className="font-medium text-forest">Comfortable Guest Room</h4>
-                <p className="text-sm text-muted">Accommodates up to 4 guests. Price will be confirmed upon request.</p>
+                <p className="text-sm text-muted">
+                  Accommodates up to 4 guests. {hidePrice ? "Price will be confirmed upon request." : `Price: LKR ${basePrice.toFixed(2)} / night`}
+                </p>
               </div>
             </div>
           </section>
@@ -345,7 +382,7 @@ export default function BookingForm() {
                 </div>
                 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-dark mb-2">Email Address (Optional)</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-dark mb-2">Email Address *</label>
                   <div className="relative">
                     <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
                     <input 
@@ -450,7 +487,9 @@ export default function BookingForm() {
 
           <div className="bg-white/10 p-4 rounded-[12px] mb-8 text-sm">
             <strong className="block text-white mb-1">Availability:</strong>
-            <span className="text-cream/80">To be confirmed by Supipi Guest House. Price will be confirmed upon request.</span>
+            <span className="text-cream/80">
+              To be confirmed by Supipi Guest House. {hidePrice ? "Price will be confirmed upon request." : `Estimated total for ${nights > 0 ? nights : 1} night(s): LKR ${(basePrice * (nights > 0 ? nights : 1)).toFixed(2)}`}
+            </span>
           </div>
 
           <div className="hidden lg:block">

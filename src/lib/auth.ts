@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   pages: {
-    signIn: "/admin/login",
+    signIn: "/123@supipiadmin-re/login",
   },
   session: {
     strategy: "jwt",

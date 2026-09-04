@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { Phone, MessageCircle, MapPin, Mail } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Mail, CalendarCheck } from "lucide-react";
 import { businessConfig } from "@/config/business";
+import BookingCTA from "@/components/ui/BookingCTA";
 
 export const metadata: Metadata = {
   title: `Contact | ${businessConfig.name}`,
@@ -87,54 +88,17 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Inquiry Form */}
-            <div className="bg-white p-8 rounded-[14px] border border-light-border shadow-sm">
-              <h3 className="font-heading text-xl text-forest mb-6">Send an Inquiry</h3>
-              <p className="text-sm text-muted mb-8">
-                Please contact us directly by phone or WhatsApp for immediate assistance. Alternatively, you can use this form.
+            {/* Book Now Section */}
+            <div className="bg-forest p-8 rounded-[14px] border border-forest-light shadow-lg text-white flex flex-col justify-center items-center text-center h-full min-h-[400px]">
+              <CalendarCheck className="w-16 h-16 text-sage mb-6" strokeWidth={1.5} />
+              <h3 className="font-heading text-3xl mb-4">Ready to Book?</h3>
+              <p className="text-cream/90 mb-8 max-w-sm">
+                Check our availability calendar and secure your reservation online instantly.
               </p>
               
-              <form className="space-y-5">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-dark mb-1">Name</label>
-                  <input type="text" id="name" className="w-full px-4 py-3 rounded-[10px] border border-light-border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50" placeholder="Your name" />
-                </div>
-                
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-dark mb-1">Phone</label>
-                  <input type="tel" id="phone" className="w-full px-4 py-3 rounded-[10px] border border-light-border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50" placeholder="Your phone number" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="checkin" className="block text-sm font-medium text-dark mb-1">Check-in</label>
-                    <input type="date" id="checkin" className="w-full px-4 py-3 rounded-[10px] border border-light-border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50" />
-                  </div>
-                  <div>
-                    <label htmlFor="checkout" className="block text-sm font-medium text-dark mb-1">Check-out</label>
-                    <input type="date" id="checkout" className="w-full px-4 py-3 rounded-[10px] border border-light-border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50" />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="guests" className="block text-sm font-medium text-dark mb-1">Guests</label>
-                  <select id="guests" className="w-full px-4 py-3 rounded-[10px] border border-light-border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50">
-                    <option>1 Guest</option>
-                    <option>2 Guests</option>
-                    <option>3 Guests</option>
-                    <option>4+ Guests</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-dark mb-1">Message</label>
-                  <textarea id="message" rows={4} className="w-full px-4 py-3 rounded-[10px] border border-light-border bg-cream/30 focus:outline-none focus:ring-2 focus:ring-sage/50 resize-none" placeholder="Any specific requirements or questions?"></textarea>
-                </div>
-
-                <button type="button" className="btn-primary w-full">
-                  Send Inquiry
-                </button>
-              </form>
+              <BookingCTA className="bg-white text-forest hover:bg-cream border-none w-full md:w-auto px-8 py-4 text-lg rounded-xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                Book Now
+              </BookingCTA>
             </div>
             
           </div>

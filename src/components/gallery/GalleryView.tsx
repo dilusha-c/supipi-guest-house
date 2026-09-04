@@ -6,14 +6,13 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const galleryImages = [
-  { src: "/images/mountain-view.jpg", alt: "Mountain and greenery view from the property" },
-  { src: "/images/bedroom-wide.jpg", alt: "Wider bedroom view" },
-  { src: "/images/bedroom.jpg", alt: "Comfortable bedroom view" },
-  { src: "/images/greenery-window.jpg", alt: "Greenery natural view from the window" },
-];
+type GalleryImage = {
+  id: string;
+  url: string;
+  caption: string;
+};
 
-export default function GalleryPage() {
+export default function GalleryView({ images }: { images: GalleryImage[] }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const openLightbox = (index: number) => {
@@ -29,14 +28,14 @@ export default function GalleryPage() {
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (lightboxIndex !== null) {
-      setLightboxIndex((lightboxIndex + 1) % galleryImages.length);
+      setLightboxIndex((lightboxIndex + 1) % images.length);
     }
   };
 
   const prevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (lightboxIndex !== null) {
-      setLightboxIndex((lightboxIndex - 1 + galleryImages.length) % galleryImages.length);
+      setLightboxIndex((lightboxIndex - 1 + images.length) % images.length);
     }
   };
 
@@ -49,27 +48,34 @@ export default function GalleryPage() {
           align="center"
         />
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 max-w-6xl mx-auto mt-12">
-          {galleryImages.map((image, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="relative h-64 md:h-80 cursor-pointer overflow-hidden rounded-[14px] group"
-              onClick={() => openLightbox(index)}
-            >
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/20 transition-colors duration-300" />
-            </motion.div>
-          ))}
-        </div>
+        {images.length === 0 ? (
+          <div className="text-center mt-12 text-muted">
+            Check back later for photos of our property.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-6xl mx-auto mt-12">
+            {images.map((image, index) => (
+              <motion.div
+                key={image.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: (index % 6) * 0.1, duration: 0.5 }}
+                className="relative h-64 md:h-80 cursor-pointer overflow-hidden rounded-[14px] group"
+                onClick={() => openLightbox(index)}
+              >
+                <Image
+                  src={image.url}
+                  alt={image.caption || "Supipi Guest House"}
+                  fill
+                  priority={index < 4}
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/20 transition-colors duration-300" />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Lightbox */}
@@ -98,13 +104,18 @@ export default function GalleryPage() {
 
             <div className="relative w-full max-w-5xl h-[80vh] px-16" onClick={(e) => e.stopPropagation()}>
               <Image
-                src={galleryImages[lightboxIndex].src}
-                alt={galleryImages[lightboxIndex].alt}
+                src={images[lightboxIndex].url}
+                alt={images[lightboxIndex].caption || "Supipi Guest House"}
                 fill
                 className="object-contain"
                 sizes="100vw"
                 priority
               />
+              {images[lightboxIndex].caption && !/\.(jpg|jpeg|png|gif|webp)$/i.test(images[lightboxIndex].caption) && (
+                <div className="absolute bottom-[-40px] left-0 right-0 text-center text-white/80">
+                  {images[lightboxIndex].caption}
+                </div>
+              )}
             </div>
 
             <button 
@@ -115,7 +126,7 @@ export default function GalleryPage() {
             </button>
             
             <div className="absolute bottom-6 text-white/80 font-body">
-              {lightboxIndex + 1} / {galleryImages.length}
+              {lightboxIndex + 1} / {images.length}
             </div>
           </motion.div>
         )}

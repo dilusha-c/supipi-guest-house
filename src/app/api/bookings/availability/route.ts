@@ -5,14 +5,15 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // Fetch all bookings that are CONFIRMED
+    // Fetch all bookings that are CONFIRMED or PENDING
     const bookings = await prisma.booking.findMany({
       where: {
-        status: 'CONFIRMED'
+        status: { in: ['CONFIRMED', 'PENDING'] }
       },
       select: {
         checkIn: true,
-        checkOut: true
+        checkOut: true,
+        status: true
       }
     });
 

@@ -1,5 +1,5 @@
 import SectionHeading from "../ui/SectionHeading";
-import { Bed, Map, Mountain, HeartHandshake } from "lucide-react";
+import { Bed, Map, Mountain, Car } from "lucide-react";
 
 const facilitiesData = [
   {
@@ -18,9 +18,9 @@ const facilitiesData = [
     icon: Map
   },
   {
-    title: "Direct guest assistance",
-    description: "Welcoming and friendly service directly from our team.",
-    icon: HeartHandshake
+    title: "Free Parking Available",
+    description: "Secure, complimentary parking on the premises for all our guests.",
+    icon: Car
   }
 ];
 

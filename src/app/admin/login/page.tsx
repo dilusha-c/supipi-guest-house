@@ -25,7 +25,7 @@ export default function AdminLogin() {
       if (res?.error) {
         setError("Invalid password");
       } else {
-        router.push("/admin");
+        router.push("/123@supipiadmin-re");
         router.refresh();
       }
     } catch (err) {

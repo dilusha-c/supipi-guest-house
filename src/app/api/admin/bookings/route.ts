@@ -2,15 +2,10 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
-import { Resend } from 'resend';
+import { sendEmail } from '@/lib/email';
 import { businessConfig } from '@/config/business';
 
 const prisma = new PrismaClient();
-// Instantiate Resend lazily to prevent build errors if the env variable is missing
-let resend: Resend | null = null;
-if (process.env.RESEND_API_KEY) {
-  resend = new Resend(process.env.RESEND_API_KEY);
-}
 
 export async function GET() {
   try {
@@ -37,45 +32,176 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id, status } = await request.json();
+    const { id, status, price, reason, customMessage } = await request.json();
 
     if (!id || !['PENDING', 'CONFIRMED', 'REJECTED', 'CANCELLED'].includes(status)) {
       return NextResponse.json({ error: "Invalid status or missing ID" }, { status: 400 });
     }
 
+    let numericPrice: number | undefined = undefined;
+    if (price && typeof price === 'string') {
+      const parsed = parseFloat(price.replace(/[^0-9.]/g, ''));
+      if (!isNaN(parsed)) numericPrice = parsed;
+    }
+
+    const dataToUpdate: any = { status };
+    if (status === 'CONFIRMED' && numericPrice !== undefined) {
+      dataToUpdate.totalPrice = numericPrice;
+    }
+
     // Update database
     const booking = await prisma.booking.update({
       where: { id },
-      data: { status },
+      data: dataToUpdate,
     });
 
     // If accepted, send email
-    if (status === 'CONFIRMED' && booking.email && resend) {
+    if (status === 'CONFIRMED' && booking.email) {
       try {
-        await resend.emails.send({
-          from: `${businessConfig.name} <bookings@supipi.com>`, // Replace with your verified sender domain later
-          to: [booking.email],
+        await sendEmail({
+          to: booking.email,
           subject: 'Booking Confirmed - Supipi Guest House',
           html: `
-            <div style="font-family: sans-serif; padding: 20px;">
-              <h2>Your Booking is Confirmed!</h2>
-              <p>Dear ${booking.guestName},</p>
-              <p>We are delighted to confirm your booking request <strong>${booking.bookingReference}</strong> at ${businessConfig.name}.</p>
-              <ul>
-                <li><strong>Check-in:</strong> ${booking.checkIn.toLocaleDateString()}</li>
-                <li><strong>Check-out:</strong> ${booking.checkOut.toLocaleDateString()}</li>
-                <li><strong>Guests:</strong> ${booking.adults} Adults, ${booking.children} Children</li>
-              </ul>
-              <p>If you have any questions before your arrival, please reply to this email or contact us via WhatsApp at ${businessConfig.whatsappNumber}.</p>
-              <br/>
-              <p>Warm regards,</p>
-              <p><strong>The ${businessConfig.name} Team</strong></p>
+            <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f7f6; padding: 20px; border-radius: 8px;">
+              <div style="background-color: #2C5234; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 26px; letter-spacing: 1px;">Booking Confirmed!</h1>
+                <p style="color: #e0e7e3; margin: 10px 0 0 0; font-size: 16px;">${businessConfig.name}</p>
+              </div>
+              
+              <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <p style="font-size: 16px; color: #333333; line-height: 1.6; margin-top: 0;">Dear <strong>${booking.guestName}</strong>,</p>
+                <p style="font-size: 16px; color: #555555; line-height: 1.6;">We are delighted to confirm your booking request at ${businessConfig.name}.</p>
+                
+                <div style="background-color: #f9fbf9; border: 1px solid #e2ece5; border-radius: 6px; padding: 20px; margin: 25px 0; text-align: center;">
+                  <p style="font-size: 12px; color: #888888; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 5px 0;">Booking Reference</p>
+                  <p style="font-size: 24px; color: #2C5234; font-weight: bold; letter-spacing: 2px; margin: 0;">${booking.bookingReference}</p>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee;"><strong style="color: #333;">Check-in:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; text-align: right; color: #555;">${new Date(booking.checkIn).toLocaleDateString()} (After 2:00 PM)</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee;"><strong style="color: #333;">Check-out:</strong></td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee; text-align: right; color: #555;">${new Date(booking.checkOut).toLocaleDateString()} (Before 11:00 AM)</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0;"><strong style="color: #333;">Guests:</strong></td>
+                    <td style="padding: 10px 0; text-align: right; color: #555;">${booking.adults} Adults, ${booking.children} Children</td>
+                  </tr>
+                  ${price ? `
+                  <tr>
+                    <td style="padding: 10px 0; border-top: 1px solid #eeeeee;"><strong style="color: #333;">Total Price:</strong></td>
+                    <td style="padding: 10px 0; border-top: 1px solid #eeeeee; text-align: right; color: #2C5234; font-weight: bold; font-size: 18px;">${price}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+                
+                ${customMessage ? `
+                <div style="margin-top: 25px; padding: 15px; background-color: #eef5f0; border-left: 4px solid #2C5234; border-radius: 4px;">
+                  <p style="font-size: 14px; color: #2C5234; margin: 0 0 5px 0;"><strong>Message from Supipi Guest House:</strong></p>
+                  <p style="font-size: 15px; color: #333333; margin: 0; line-height: 1.5;">${customMessage}</p>
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 6px;">
+                  <p style="font-size: 14px; color: #666666; margin: 0 0 10px 0;"><strong style="color: #333;">Arrival Instructions:</strong></p>
+                  <p style="font-size: 14px; color: #555555; margin: 0 0 5px 0;">📍 ${businessConfig.address}</p>
+                  <p style="font-size: 14px; color: #555555; margin: 0 0 15px 0;">📞 ${businessConfig.whatsappNumber}</p>
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessConfig.name + ' ' + businessConfig.address)}" target="_blank" style="display: inline-block; background-color: #4285F4; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: bold;">View on Google Maps 🗺️</a>
+                </div>
+                
+                <p style="font-size: 15px; color: #555555; line-height: 1.6; margin-top: 25px;">If you have any questions before your arrival, please contact us!</p>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee;">
+                  <p style="font-size: 14px; color: #888888; margin: 0;">Warm regards,<br><strong style="color: #2C5234;">The ${businessConfig.name} Team</strong></p>
+                </div>
+              </div>
             </div>
           `,
         });
       } catch (emailError) {
         console.error("Failed to send confirmation email:", emailError);
         // We still return success for the booking update, even if email fails
+      }
+    } else if (status === 'REJECTED' && booking.email) {
+      try {
+        await sendEmail({
+          to: booking.email,
+          subject: 'Booking Request Declined - Supipi Guest House',
+          html: `
+            <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f7f6; padding: 20px; border-radius: 8px;">
+              <div style="background-color: #8B0000; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">Booking Declined</h1>
+              </div>
+              <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <p style="font-size: 16px; color: #333333; line-height: 1.6; margin-top: 0;">Dear <strong>${booking.guestName}</strong>,</p>
+                <p style="font-size: 16px; color: #555555; line-height: 1.6;">Thank you for your request. Unfortunately, we are unable to accommodate your booking for the selected dates (${new Date(booking.checkIn).toLocaleDateString()} to ${new Date(booking.checkOut).toLocaleDateString()}).</p>
+                
+                ${reason ? `
+                <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #8B0000; border-radius: 4px;">
+                  <p style="font-size: 14px; color: #666666; margin: 0 0 5px 0;"><strong>Reason:</strong></p>
+                  <p style="font-size: 15px; color: #333333; margin: 0;">${reason}</p>
+                </div>
+                ` : ''}
+                
+                ${customMessage ? `
+                <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #333333; border-radius: 4px;">
+                  <p style="font-size: 14px; color: #333333; margin: 0 0 5px 0;"><strong>Message from Supipi Guest House:</strong></p>
+                  <p style="font-size: 15px; color: #333333; margin: 0; line-height: 1.5;">${customMessage}</p>
+                </div>
+                ` : ''}
+
+                <p style="font-size: 15px; color: #555555; line-height: 1.6; margin-top: 25px;">We sincerely apologize for the inconvenience and hope to have the opportunity to host you another time.</p>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee;">
+                  <p style="font-size: 14px; color: #888888; margin: 0;">Warm regards,<br><strong style="color: #333333;">The ${businessConfig.name} Team</strong></p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailError) {
+        console.error("Failed to send rejection email:", emailError);
+      }
+    } else if (status === 'CANCELLED' && booking.email) {
+      try {
+        await sendEmail({
+          to: booking.email,
+          subject: 'Booking Cancelled - Supipi Guest House',
+          html: `
+            <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f7f6; padding: 20px; border-radius: 8px;">
+              <div style="background-color: #e53e3e; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">Booking Cancelled</h1>
+              </div>
+              <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <p style="font-size: 16px; color: #333333; line-height: 1.6; margin-top: 0;">Dear <strong>${booking.guestName}</strong>,</p>
+                <p style="font-size: 16px; color: #555555; line-height: 1.6;">Your booking (Reference: <strong>${booking.bookingReference}</strong>) has been cancelled.</p>
+                
+                ${reason ? `
+                <div style="margin-top: 20px; padding: 15px; background-color: #fff5f5; border-left: 4px solid #e53e3e; border-radius: 4px;">
+                  <p style="font-size: 14px; color: #e53e3e; margin: 0 0 5px 0;"><strong>Reason for Cancellation:</strong></p>
+                  <p style="font-size: 15px; color: #333333; margin: 0;">${reason}</p>
+                </div>
+                ` : ''}
+                
+                ${customMessage ? `
+                <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #333333; border-radius: 4px;">
+                  <p style="font-size: 14px; color: #333333; margin: 0 0 5px 0;"><strong>Message from Supipi Guest House:</strong></p>
+                  <p style="font-size: 15px; color: #333333; margin: 0; line-height: 1.5;">${customMessage}</p>
+                </div>
+                ` : ''}
+
+                <p style="font-size: 15px; color: #555555; line-height: 1.6; margin-top: 25px;">If you believe this is a mistake, or if you need to reschedule your stay, please contact us immediately.</p>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee;">
+                  <p style="font-size: 14px; color: #888888; margin: 0;">Warm regards,<br><strong style="color: #333333;">The ${businessConfig.name} Team</strong></p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailError) {
+        console.error("Failed to send cancellation email:", emailError);
       }
     }
 

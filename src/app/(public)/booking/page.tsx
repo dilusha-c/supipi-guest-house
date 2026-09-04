@@ -9,8 +9,18 @@ export const metadata: Metadata = {
 };
 
 import AvailabilityCalendar from "@/components/booking/AvailabilityCalendar";
+import { PrismaClient } from "@prisma/client";
 
-export default function BookingPage() {
+const prisma = new PrismaClient();
+
+export default async function BookingPage() {
+  const settings = await prisma.settings.findUnique({
+    where: { id: "global" }
+  });
+
+  const basePrice = settings?.basePrice || 50;
+  const hidePrice = settings?.hidePrice ?? false;
+
   return (
     <main className="pt-24 pb-20 bg-[#FAF9F6] min-h-screen">
       <div className="container mx-auto px-4 md:px-6 max-w-6xl">
@@ -45,7 +55,7 @@ export default function BookingPage() {
         <AvailabilityCalendar />
 
         {/* Form Container */}
-        <BookingForm />
+        <BookingForm basePrice={basePrice} hidePrice={hidePrice} />
 
       </div>
     </main>

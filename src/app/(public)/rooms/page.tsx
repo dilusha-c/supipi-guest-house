@@ -3,6 +3,7 @@ import Image from "next/image";
 import SectionHeading from "@/components/ui/SectionHeading";
 import BookingCTA from "@/components/ui/BookingCTA";
 import { Check } from "lucide-react";
+import { PrismaClient } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Comfortable Rooms | Supipi Guest House",
@@ -17,7 +18,16 @@ const roomFeatures = [
   "Spacious living area",
 ];
 
-export default function RoomsPage() {
+const prisma = new PrismaClient();
+
+export default async function RoomsPage() {
+  const settings = await prisma.settings.findUnique({
+    where: { id: "global" }
+  });
+
+  const price = settings?.basePrice || 50;
+  const hidePrice = settings?.hidePrice ?? false;
+
   return (
     <div className="pt-32 pb-20 md:pt-40 md:pb-32 bg-white min-h-screen">
       <div className="container mx-auto px-4 md:px-6">
@@ -66,7 +76,15 @@ export default function RoomsPage() {
 
             {/* Details */}
             <div className="flex flex-col justify-center">
-              <h2 className="font-heading text-3xl md:text-4xl text-forest mb-6">A Place to Rest</h2>
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="font-heading text-3xl md:text-4xl text-forest">A Place to Rest</h2>
+                {!hidePrice && (
+                  <div className="bg-forest/5 text-forest px-4 py-2 rounded-xl text-lg font-medium border border-forest/10">
+                    ${price.toFixed(2)} <span className="text-sm opacity-70">/ night</span>
+                  </div>
+                )}
+              </div>
+              
               <div className="prose prose-lg text-muted mb-10">
                 <p>
                   Our guest house provides a fully equipped and comfortable space to relax after exploring Haputale and the surrounding hill country. It perfectly accommodates up to 4 guests, making it ideal for families or small groups.
@@ -90,7 +108,11 @@ export default function RoomsPage() {
 
               <div className="bg-cream p-8 rounded-[14px] border border-light-border">
                 <h3 className="font-heading text-xl text-forest mb-2">Interested in staying?</h3>
-                <p className="text-muted mb-6">Contact us directly for availability and pricing.</p>
+                <p className="text-muted mb-6">
+                  {hidePrice 
+                    ? "Contact us directly for availability and pricing." 
+                    : "Check availability and send a booking request."}
+                </p>
                 <BookingCTA className="w-full sm:w-auto" />
               </div>
             </div>

@@ -6,6 +6,7 @@ import { addDays, eachDayOfInterval } from "date-fns";
 
 export default function AvailabilityCalendar() {
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
+  const [pendingDates, setPendingDates] = useState<Date[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,15 +16,20 @@ export default function AvailabilityCalendar() {
         const data = await res.json();
         
         if (data.bookings) {
-          const dates: Date[] = [];
+          const confDates: Date[] = [];
+          const pendDates: Date[] = [];
           data.bookings.forEach((b: any) => {
             const checkIn = new Date(b.checkIn);
             const checkOut = new Date(b.checkOut);
-            // Get all days between checkin and checkout
             const interval = eachDayOfInterval({ start: checkIn, end: checkOut });
-            dates.push(...interval);
+            if (b.status === 'CONFIRMED') {
+              confDates.push(...interval);
+            } else {
+              pendDates.push(...interval);
+            }
           });
-          setBookedDates(dates);
+          setBookedDates(confDates);
+          setPendingDates(pendDates);
         }
       } catch (err) {
         console.error("Failed to fetch availability", err);
@@ -49,17 +55,20 @@ export default function AvailabilityCalendar() {
           ) : (
             <Calendar
               mode="multiple"
-              selected={bookedDates}
+              selected={[...bookedDates, ...pendingDates]}
+              showOutsideDays={false}
               numberOfMonths={typeof window !== 'undefined' && window.innerWidth >= 768 ? 2 : 1}
               disabled={[{ before: new Date() }]}
-              className="w-full bg-transparent border-none shadow-none pointer-events-none"
+              className="w-full bg-transparent border-none shadow-none"
               modifiers={{
                 booked: bookedDates,
+                pending: pendingDates,
                 available: [{ after: new Date() }]
               }}
               modifiersClassNames={{
-                booked: "bg-red-100 text-red-600 line-through opacity-60",
-                available: "bg-green-50 text-green-700"
+                booked: "bg-red-100 text-red-600 line-through opacity-60 pointer-events-none",
+                pending: "bg-yellow-100 text-yellow-700 opacity-80 pointer-events-none",
+                available: "bg-green-50 text-green-700 pointer-events-none"
               }}
             />
           )}
@@ -70,9 +79,13 @@ export default function AvailabilityCalendar() {
             <div className="w-4 h-4 rounded-full bg-green-500"></div>
             <span className="text-sm font-medium text-green-800">Available</span>
           </div>
+          <div className="flex items-center gap-3 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
+            <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+            <span className="text-sm font-medium text-yellow-800">Received (Pending)</span>
+          </div>
           <div className="flex items-center gap-3 bg-red-50 p-3 rounded-xl border border-red-100">
             <div className="w-4 h-4 rounded-full bg-red-500"></div>
-            <span className="text-sm font-medium text-red-800">Booked</span>
+            <span className="text-sm font-medium text-red-800">Booked (Confirmed)</span>
           </div>
         </div>
       </div>
