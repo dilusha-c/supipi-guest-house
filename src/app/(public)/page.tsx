@@ -1,11 +1,13 @@
 import Hero from "@/components/home/Hero";
 import InfoBar from "@/components/home/InfoBar";
-import AboutSection from "@/components/home/AboutSection";
-import NatureSection from "@/components/home/NatureSection";
-import RoomSection from "@/components/home/RoomSection";
-import FacilitiesSection from "@/components/home/FacilitiesSection";
-import ReviewSection from "@/components/home/ReviewSection";
-import LocationSection from "@/components/home/LocationSection";
+import dynamic from 'next/dynamic';
+
+const AboutSection = dynamic(() => import("@/components/home/AboutSection"));
+const NatureSection = dynamic(() => import("@/components/home/NatureSection"));
+const RoomSection = dynamic(() => import("@/components/home/RoomSection"));
+const FacilitiesSection = dynamic(() => import("@/components/home/FacilitiesSection"));
+const ReviewSection = dynamic(() => import("@/components/home/ReviewSection"));
+const LocationSection = dynamic(() => import("@/components/home/LocationSection"));
 import BookingCTA from "@/components/ui/BookingCTA";
 import SectionHeading from "@/components/ui/SectionHeading";
 

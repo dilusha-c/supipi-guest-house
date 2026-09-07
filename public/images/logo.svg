@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EEDAA2" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <linearGradient id="mountGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#467B52" />
+      <stop offset="100%" stop-color="#2C5234" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="120" height="120" rx="60" fill="#FAF7EE" />
+  
+  <circle cx="60" cy="55" r="28" fill="url(#sunGrad)" />
+  
+  <!-- Back Mountain -->
+  <path d="M 15 85 L 45 45 L 75 85 Z" fill="#D4E7D6" />
+  
+  <!-- Front Mountain -->
+  <path d="M 35 90 L 70 50 L 105 90 Z" fill="url(#mountGrad)" />
+  
+  <!-- Base Cutoff for clean bottom -->
+  <rect x="0" y="85" width="120" height="35" fill="#FAF7EE" />
+  
+  <!-- Accent Line -->
+  <path d="M 35 88 L 85 88" stroke="#2C5234" stroke-width="2" stroke-linecap="round" />
+</svg>

@@ -15,6 +15,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://supipiguesthouse.com'),
   title: `${businessConfig.name} | Comfortable Stay in Haputale, Sri Lanka`,
   description: businessConfig.description,
   openGraph: {

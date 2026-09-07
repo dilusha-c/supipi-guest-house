@@ -5,10 +5,16 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Fetch all bookings that are CONFIRMED or PENDING
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Fetch all upcoming bookings that are CONFIRMED or PENDING
     const bookings = await prisma.booking.findMany({
       where: {
-        status: { in: ['CONFIRMED', 'PENDING'] }
+        status: { in: ['CONFIRMED', 'PENDING'] },
+        checkOut: {
+          gte: today
+        }
       },
       select: {
         checkIn: true,

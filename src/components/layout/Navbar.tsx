@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -45,13 +46,24 @@ export default function Navbar() {
   return (
     <header className={navClass}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <Link href="/" className="flex flex-col items-start leading-none group">
-          <span className="font-heading font-bold text-xl tracking-wider uppercase group-hover:text-forest/80 transition-colors">
-            SUPIPI
-          </span>
-          <span className="text-xs tracking-widest uppercase mt-1">
-            GUEST HOUSE
-          </span>
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 md:w-12 md:h-12 bg-white rounded-full overflow-hidden shadow-sm">
+            <Image 
+              src="/images/logo.svg" 
+              alt="Supipi Guest House Logo" 
+              fill 
+              sizes="(max-width: 768px) 40px, 48px"
+              className="object-cover" 
+            />
+          </div>
+          <div className="flex flex-col items-start leading-none">
+            <span className="font-heading font-bold text-xl tracking-wider uppercase group-hover:opacity-80 transition-opacity">
+              SUPIPI
+            </span>
+            <span className="text-[10px] sm:text-xs tracking-widest uppercase mt-1">
+              GUEST HOUSE
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}
