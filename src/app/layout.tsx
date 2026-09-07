@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { businessConfig } from "@/config/business";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -62,6 +63,7 @@ export default function RootLayout({
         />
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
