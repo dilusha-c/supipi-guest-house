@@ -2,20 +2,25 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import { businessConfig } from '@/config/business';
+import { escapeHtml } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    // 1. Verify cron authorization (Vercel Cron sends a Bearer token matching CRON_SECRET)
-    // If not using Vercel Cron, you can pass a custom ?token=xyz
+    // 1. Verify cron authorization securely from environment
     const authHeader = request.headers.get('authorization');
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
     
-    // Allow if CRON_SECRET matches, or a custom secret token is provided
-    const CRON_SECRET = process.env.CRON_SECRET || 'supipi_cron_secret_2026';
-    if (authHeader !== `Bearer ${CRON_SECRET}` && token !== CRON_SECRET) {
+    const CRON_SECRET = process.env.CRON_SECRET;
+    if (!CRON_SECRET) {
+      console.error("CRON_SECRET environment variable is missing.");
+      return NextResponse.json({ error: 'CRON_SECRET is not configured' }, { status: 500 });
+    }
+
+    const isAuthorized = authHeader === `Bearer ${CRON_SECRET}` || token === CRON_SECRET;
+    if (!isAuthorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -52,6 +57,9 @@ export async function GET(request: Request) {
     for (const booking of upcomingBookings) {
       if (!booking.email) continue;
 
+      const safeGuest = escapeHtml(booking.guestName);
+      const safeRef = escapeHtml(booking.bookingReference);
+
       try {
         await sendEmail({
           to: booking.email,
@@ -64,12 +72,12 @@ export async function GET(request: Request) {
               </div>
               
               <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <p style="font-size: 16px; color: #333333; line-height: 1.6; margin-top: 0;">Dear <strong>${booking.guestName}</strong>,</p>
+                <p style="font-size: 16px; color: #333333; line-height: 1.6; margin-top: 0;">Dear <strong>${safeGuest}</strong>,</p>
                 <p style="font-size: 16px; color: #555555; line-height: 1.6;">We are excited to welcome you in just a couple of days! This is a quick reminder about your upcoming stay.</p>
                 
                 <div style="background-color: #f9fbf9; border: 1px solid #e2ece5; border-radius: 6px; padding: 20px; margin: 25px 0; text-align: center;">
                   <p style="font-size: 12px; color: #888888; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 5px 0;">Booking Reference</p>
-                  <p style="font-size: 24px; color: #2C5234; font-weight: bold; letter-spacing: 2px; margin: 0;">${booking.bookingReference}</p>
+                  <p style="font-size: 24px; color: #2C5234; font-weight: bold; letter-spacing: 2px; margin: 0;">${safeRef}</p>
                 </div>
                 
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">

@@ -22,7 +22,7 @@ export default function AttractionsSection() {
             align="center"
           />
           <p className="text-lg text-muted mt-6">
-            Discover the breathtaking beauty of Sri Lanka's hill country. From panoramic viewpoints to cascading waterfalls, Haputale offers unforgettable experiences just a short trip from our guest house.
+            Discover the breathtaking beauty of Sri Lanka&apos;s hill country. From panoramic viewpoints to cascading waterfalls, Haputale offers unforgettable experiences just a short trip from our guest house.
           </p>
         </div>
 

@@ -30,7 +30,7 @@ export default function AboutSection() {
             
             <div className="prose prose-lg text-muted mb-8">
               <p className="leading-relaxed">
-                Discover a comfortable and peaceful place to stay in the beautiful hill country of Haputale. Supipi Guest House offers a simple, welcoming environment for travelers, families, and visitors looking to enjoy the natural surroundings of Sri Lanka's central highlands.
+                Discover a comfortable and peaceful place to stay in the beautiful hill country of Haputale. Supipi Guest House offers a simple, welcoming environment for travelers, families, and visitors looking to enjoy the natural surroundings of Sri Lanka&apos;s central highlands.
               </p>
               <p className="leading-relaxed">
                 Relax in peaceful surroundings and enjoy the natural scenery while exploring the area. Whether you are here for a short visit or a longer retreat, our doors are open to make you feel at home.

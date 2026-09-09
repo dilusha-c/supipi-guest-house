@@ -8,15 +8,15 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session || (session.user as any)?.role !== 'admin') {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     const { id, amount } = body;
 
-    if (!id || typeof amount !== 'number' || amount <= 0) {
-      return NextResponse.json({ error: "Invalid payment data" }, { status: 400 });
+    if (!id || typeof id !== 'string' || typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0 || amount > 10000000) {
+      return NextResponse.json({ error: "Invalid payment data. Amount must be a positive finite number." }, { status: 400 });
     }
 
     // Get current booking
@@ -28,8 +28,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    // Add amount to existing amountPaid
-    const newAmountPaid = (currentBooking.amountPaid || 0) + amount;
+    // Round amount to 2 decimal places to avoid floating point inaccuracies
+    const roundedPayment = Math.round(amount * 100) / 100;
+    const newAmountPaid = Math.round(((currentBooking.amountPaid || 0) + roundedPayment) * 100) / 100;
 
     const updatedBooking = await prisma.booking.update({
       where: { id },

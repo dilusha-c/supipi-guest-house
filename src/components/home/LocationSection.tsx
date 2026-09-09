@@ -16,7 +16,7 @@ export default function LocationSection() {
             />
             
             <p className="text-lg text-muted mb-8 leading-relaxed">
-              Stay in Haputale and enjoy the peaceful atmosphere of Sri Lanka's hill country. We are conveniently located to allow you to easily explore the surrounding natural beauty.
+              Stay in Haputale and enjoy the peaceful atmosphere of Sri Lanka&apos;s hill country. We are conveniently located to allow you to easily explore the surrounding natural beauty.
             </p>
             
             <div className="bg-cream p-6 md:p-8 rounded-[14px] border border-light-border mb-8">
